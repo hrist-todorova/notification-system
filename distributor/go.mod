@@ -1,4 +1,4 @@
-module github.com/hrist-todorova/notification-system
+module github.com/hrist-todorova/notification-system/distributor
 
 go 1.22.2
 
