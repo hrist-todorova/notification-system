@@ -18,6 +18,14 @@ services:
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
 
+  redis:
+    image: bitnami/redis:latest
+    container_name: redis
+    networks:
+      - notification-system
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+
   api:
     image: api:1
     container_name: api
@@ -28,3 +36,50 @@ services:
     environment:
       API_PORT: 8080
       BOOTSTRAP_SERVER: kafka:9092
+
+  email-distributor:
+    image: distributor:1
+    container_name: email-distributor
+    networks:
+      - notification-system
+    environment:
+      BOOTSTRAP_SERVER: kafka:9092
+      REDIS_ADDRESS: redis:6379
+      TOPIC: email
+      CONSUMER_GROUP_ID: email_group
+      FAILURE_WAIT: 15
+      USER: ""
+      PASSWORD: ""
+      FROM_EMAIL: ""
+      TO_EMAIL: ""
+      SMTP_HOST: ""
+      SMTP_PORT: ""
+
+  sms-distributor:
+    image: distributor:1
+    container_name: sms-distributor
+    networks:
+      - notification-system
+    environment:
+      BOOTSTRAP_SERVER: kafka:9092
+      REDIS_ADDRESS: redis:6379
+      TOPIC: sms
+      CONSUMER_GROUP_ID: sms_group
+      FAILURE_WAIT: 15
+      ACCOUNT_SID: ""
+      AUTH_TOKEN: ""
+      FROM_PHONE: ""
+      TO_PHONE: ""
+
+  slack-distributor:
+    image: distributor:1
+    container_name: slack-distributor
+    networks:
+      - notification-system
+    environment:
+      BOOTSTRAP_SERVER: kafka:9092
+      REDIS_ADDRESS: redis:6379
+      TOPIC: slack
+      CONSUMER_GROUP_ID: slack_group
+      FAILURE_WAIT: 15
+      WEBHOOK_URL: ""
